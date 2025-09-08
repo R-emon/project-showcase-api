@@ -39,4 +39,19 @@ public class ProjectController {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
     }
 
+    @PutMapping("/{id}")
+    public Project updateProject(@PathVariable String id, @RequestBody Project projectDetails){
+        Project existingProject = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        existingProject.setTitle(projectDetails.getTitle());
+        existingProject.setDescription(projectDetails.getDescription());
+        existingProject.setImageUrl(projectDetails.getImageUrl());
+        existingProject.setLiveUrl(projectDetails.getLiveUrl());
+        existingProject.setRepoUrl(projectDetails.getRepoUrl());
+        existingProject.setTags(projectDetails.getTags());
+
+        return projectRepository.save(existingProject);
+    }
+
 }
