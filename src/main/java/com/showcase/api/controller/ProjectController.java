@@ -6,6 +6,7 @@ import com.showcase.api.model.Project;
 import com.showcase.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,6 +53,16 @@ public class ProjectController {
         existingProject.setTags(projectDetails.getTags());
 
         return projectRepository.save(existingProject);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable String id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        projectRepository.delete(project);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
