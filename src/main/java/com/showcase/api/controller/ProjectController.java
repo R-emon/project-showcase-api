@@ -1,6 +1,7 @@
 package com.showcase.api.controller;
 
 
+import com.showcase.api.exception.ResourceNotFoundException;
 import com.showcase.api.model.Project;
 import com.showcase.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,12 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.CREATED)
     public Project createProject(@RequestBody Project project){
         return projectRepository.save(project);
+    }
+
+    @GetMapping("/{id}")
+    public Project getProjectById(@PathVariable String id){
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
     }
 
 }
