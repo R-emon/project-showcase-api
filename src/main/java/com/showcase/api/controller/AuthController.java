@@ -5,6 +5,7 @@ import com.showcase.api.dto.LoginRequest;
 import com.showcase.api.dto.RegisterRequest;
 import com.showcase.api.model.User;
 import com.showcase.api.repository.UserRepository;
+import com.showcase.api.service.JwtService;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,19 +30,18 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
 
-    @Value("${app.jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${app.jwt.expiration-ms}")
-    private int jwtExpirationMs;
-
+    private JwtService jwtService;
+    private UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public  AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager){
+    public  AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,
+    JwtService jwtService, UserDetailsService userDetailsService){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/register")
@@ -63,19 +65,8 @@ public class AuthController {
     public ResponseEntity<JwtResponse> loginUser(@RequestBody LoginRequest loginRequest){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = generateJwtToken(authentication);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.username());
+        final String jwt = jwtService.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(jwt));
     }
-    private String generateJwtToken(Authentication authentication){
-        String username = authentication.getName();
-
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .compact();
-
-    }
-
 }
