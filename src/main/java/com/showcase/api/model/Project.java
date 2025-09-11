@@ -20,10 +20,10 @@ public class Project {
 
     private String liveUrl;
 
-
-
     private String repoUrl;
 
     private List<String> tags;
+
+    private String ownerUsername;
 
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -30,8 +31,12 @@ public class ProjectController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Project createProject(@RequestBody Project project){
-        return projectRepository.save(project);
+    public ResponseEntity<Project> createProject(@RequestBody Project project, Principal principal){
+        String ownerUsername = principal.getName();
+        project.setOwnerUsername(ownerUsername);
+        Project saveProject = projectRepository.save(project);
+
+        return new ResponseEntity<>(saveProject, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
