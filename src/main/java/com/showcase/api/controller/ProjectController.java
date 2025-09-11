@@ -2,6 +2,7 @@ package com.showcase.api.controller;
 
 
 import com.showcase.api.exception.ResourceNotFoundException;
+import com.showcase.api.exception.UnauthorizedAccessException;
 import com.showcase.api.model.Project;
 import com.showcase.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +47,12 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
-    public Project updateProject(@PathVariable String id, @RequestBody Project projectDetails){
+    public Project updateProject(@PathVariable String id, @RequestBody Project projectDetails, Principal principal){
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        if(!existingProject.getOwnerUsername().equals(principal.getName())){
+            throw new UnauthorizedAccessException("You do not have permission to update this project.");
+        }
 
         existingProject.setTitle(projectDetails.getTitle());
         existingProject.setDescription(projectDetails.getDescription());
@@ -61,9 +65,13 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable String id){
+    public ResponseEntity<Void> deleteProject(@PathVariable String id, Principal principal){
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        if(!project.getOwnerUsername().equals(principal.getName())){
+            throw new UnauthorizedAccessException("You do not have permission to delete this project.");
+        }
 
         projectRepository.delete(project);
 
