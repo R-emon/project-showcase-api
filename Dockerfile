@@ -8,10 +8,6 @@ WORKDIR /app
 # Copy the Maven project file first to leverage Docker's layer caching
 COPY pom.xml .
 
-# Copy the Maven wrapper files
-COPY .mvn/ .mvn
-COPY mvnw .
-
 # Copy the rest of the application's source code
 COPY src ./src
 
