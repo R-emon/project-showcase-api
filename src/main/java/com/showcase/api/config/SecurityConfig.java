@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -58,9 +59,9 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("project-showcase-client.vercel.app" //
-        ));
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // The origin of our frontend
+        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        //configuration.setAllowedOrigins(Arrays.asList("project-showcase-client.vercel.app"));
+        //configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // The origin of our frontend
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
